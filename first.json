@@ -1,1 +1,1 @@
-{"name": "first", "learning_rate": 0.01, "epochs": 1, "batch_size": 1000, "val_acc": 0.9783}
+{"hash": "8ed4b59ff298bf06642cb0627cf7719ac2bfec84", "name": "first", "learning_rate": 0.01, "epochs": 1, "batch_size": 1000, "val_acc": 0.9812}
