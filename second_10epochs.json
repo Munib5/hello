@@ -1,1 +1,0 @@
-{"hash": "8ed4b59ff298bf06642cb0627cf7719ac2bfec84", "name": "second_10epochs", "learning_rate": 0.01, "epochs": 10, "batch_size": 1000, "val_acc": 0.9906}

@@ -1,16 +1,16 @@
 from pathlib import Path
-import torch
-from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
 from ser.train import train as t
-
 
 import json
 
+import git
+
 import typer
+
+repo = git.Repo(search_parent_directories=True)
+sha = repo.head.object.hexsha
 
 main = typer.Typer()
 
@@ -28,8 +28,11 @@ def train(
     batch_size: int = typer.Option(
         ..., "-bs", "--batch_size", help="Batch size "
     ),
+    model: str = typer.Option(
+        ..., "-m", "--model", help="Choice of model"
+    ),
 ):
-    t(name, learning_rate, epochs, batch_size)
+    t(name, learning_rate, epochs, batch_size, model, sha)
 
 
 @main.command()
