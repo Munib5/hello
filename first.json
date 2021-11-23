@@ -1,1 +1,1 @@
-{"name": "first", "learning_rate": 0.01, "epochs": 1, "batch_size": 1000, "val_acc": 0.9693}
+{"name": "first", "learning_rate": 0.01, "epochs": 1, "batch_size": 1000, "val_acc": 0.9783}
