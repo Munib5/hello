@@ -12,17 +12,19 @@ import typer
 
 import json
 
-import git
+from datetime import datetime
 
-repo = git.Repo(search_parent_directories=True)
-sha = repo.head.object.hexsha
+MODELS = {
+    "basic": Net,
+    "resnet": MnistResNet,
+}
 
 PROJECT_ROOT = Path(__file__).parent.parent
 MODEL_DIR = PROJECT_ROOT / "model"
 
 main = typer.Typer()
 
-def train(name, learning_rate, epochs, batch_size):
+def train(name, learning_rate, epochs, batch_size, model, sha):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     epochs = epochs
@@ -30,7 +32,8 @@ def train(name, learning_rate, epochs, batch_size):
     learning_rate = learning_rate
 
     # load model
-    model = MnistResNet().to(device)
+    klass = MODELS[model]
+    model = klass().to(device)
 
     # setup params
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -42,7 +45,6 @@ def train(name, learning_rate, epochs, batch_size):
 
     print("Data loaded properly.")
 
-    val_loss_temp = 1e10
     correct_temp = 0
     epoch_temp = 0
     loss_function = nn.CrossEntropyLoss()
@@ -77,8 +79,6 @@ def train(name, learning_rate, epochs, batch_size):
             val_loss /= len(validation_dataloader.dataset)
             val_acc = correct / len(validation_dataloader.dataset)
 
-            if val_loss < val_loss_temp:
-                val_loss_temp = val_loss
             if val_acc > correct_temp:
                 correct_temp = val_acc
                 epoch_temp = i
@@ -86,10 +86,16 @@ def train(name, learning_rate, epochs, batch_size):
                 # save the parameters!
                 params = {'hash':sha, 'name':name, 'learning_rate':learning_rate, 'epochs':epochs, 'batch_size':batch_size, 'val_acc': val_acc, 'epoch': epoch}
 
-                with open(f'{name}.json','w') as d:
+                dateTimeObj = datetime.now()
+
+                date = dateTimeObj.strftime("%d-%m-%H-%M")
+
+                Path(PROJECT_ROOT/"results"/f"{date}").mkdir(parents=True, exist_ok=True)
+
+                with open(PROJECT_ROOT/"results"/f"{date}"/f'{name}.json','w') as d:
                     json.dump(params, d)
 
-                torch.save(model.state_dict(), MODEL_DIR/f"model_{name}.pt")
+                torch.save(model.state_dict(), PROJECT_ROOT/"results"/f"{date}"/f"model_{name}.pt")
 
             print(
                 f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
