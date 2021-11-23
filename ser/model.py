@@ -2,6 +2,8 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.models.resnet import ResNet, BasicBlock
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -27,3 +29,11 @@ class Net(nn.Module):
         x = self.fc2(x)
         output = F.log_softmax(x, dim=1)
         return output
+
+class MnistResNet(ResNet):
+    def __init__(self):
+        super(MnistResNet, self).__init__(BasicBlock, [2, 2, 2, 2], num_classes=10)
+        self.conv1 = torch.nn.Conv2d(1, 64, 
+            kernel_size=(7, 7), 
+            stride=(2, 2), 
+            padding=(3, 3), bias=False)
