@@ -1,41 +1,21 @@
 from pathlib import Path
 import torch
 from torch import optim
-from model import Net
+from .model import Net
 import torch.nn.functional as F
 
-from data import train_data, val_data
+from .data import train_data, val_data
 
 import typer
 
 main = typer.Typer()
 
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-
-
-@main.command()
-def train(
-    name: str = typer.Option(
-        ..., "-n", "--name", help="Name of experiment to save under."
-    ),
-    learning_rate: float = typer.Option(
-        ..., "-lr", "--learning_rate", help="Learning rate"
-    ),
-    epochs: int = typer.Option(
-        ..., "-e", "--epochs", help="Number of epochs"
-    ),
-    batch_size: int = typer.Option(
-        ..., "-bs", "--batch_size", help="Batch size "
-    ),
-):
+def train(name, learning_rate, epochs, batch_size):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     epochs = epochs
     batch_size = batch_size
     learning_rate = learning_rate
-
-    # save the parameters!
 
     # load model
     model = Net().to(device)
@@ -47,6 +27,8 @@ def train(
     training_dataloader = train_data(batch_size)
 
     validation_dataloader = val_data(batch_size)
+
+    print("Data loaded properly.")
 
     # train
     for epoch in range(epochs):
@@ -79,3 +61,9 @@ def train(
                 print(
                     f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
                 )
+    # save the parameters!
+
+    params = {'name':name, 'learning_rate':learning_rate, 'epochs':epochs, 'batch_size':batch_size, 'val_acc': val_acc}
+
+    with open(f'{name}.json','w') as d:
+        json.dump(params, d)
